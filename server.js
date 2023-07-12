@@ -11,7 +11,7 @@ startApplication();
 
 // Database Options
 function showOptions() {
-    console.log ('Please select an option by entering the corresponding number:\n');
+    console.log ('Please select an option:\n');
     inquirer.prompt([
         {
             type: 'list',
@@ -59,6 +59,3 @@ function handleOption(option) {
             console.log('Invalid option. Please choose a valid option.\n');
     }
 }
-
-// call the showOptions function to display the available options
-showOptions();

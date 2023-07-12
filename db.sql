@@ -1,3 +1,7 @@
+-- Creates the DATABASE FOR THE TABLES
+DROP DATABASE IF EXISTS library_db;
+CREATE DATABASE library_db;
+
 -- Creates the departments table
 CREATE TABLE departments (
     id INT PRIMARY KEY,
