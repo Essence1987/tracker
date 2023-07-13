@@ -1,5 +1,5 @@
 const inquirer = require('inquirer');
-const mysql = require('mysql');
+const connection = require('./connection'); // Import the MySql connection
 
 // Function to start the application
 function startApplication() {
@@ -64,43 +64,26 @@ function handleOption(option) {
 
 // function for viewing all departments
 function viewAllDepartments() {
-  const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'DezNat89!!!',
-    database: 'library_db',
-  });
-
-  connection.connect((err) => {
-    if (err) {
-      console.error('Error connecting to the database:', err);
-      return;
-    }
-
     const query = 'SELECT id, name FROM departments';
     connection.query(query, (error, results) => {
       if (error) {
         console.error('Error executing the query:', error);
-        connection.end();
         return;
       }
-
+  
       const tableData = results.map((department) => {
         return {
           'Department ID': department.id,
           'Department Name': department.name,
         };
       });
-
+  
       console.table(tableData);
-
-      connection.end();
-
+  
       // Return to the options menu
       showOptions();
     });
-  });
-}
+  }
 
 // Start the application
 startApplication();
