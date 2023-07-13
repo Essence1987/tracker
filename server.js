@@ -2,6 +2,7 @@ const inquirer = require('inquirer');
 const connection = require('./connection'); // Import the MySql connection
 const fs = require('fs');
 const path = require('path');
+const { error } = require('console');
 
 
 // Function to start the application
@@ -257,6 +258,120 @@ function getDepartmentChoices() {
       });
     });
   }  
+
+function addEmployee() {
+    getRoleChoices().then((roleChoices) => {
+        getManagerChoices().then((managerChoices) => {
+            inquirer.prompt([
+                {
+                    type: 'input',
+                    name: 'firstName',
+                    message: "Enter the employee's first name:",
+                    validate: (input) => {
+                        if (input.trim() === '') {
+                            return "Please enter the employee's first name.";
+                        }
+                        return true;
+                    },
+                },
+                {
+                    type: 'input',
+                    name: 'lastName',
+                    message: "Enter the employee's last name.",
+                    validate: (input) => {
+                        if (input.trim() === '') {
+                            return "Please enter the employee's last name.";
+                        }
+                        return true;
+                    },
+                },
+                {
+                    type: 'list',
+                    name: 'roleId',
+                    message: "Select the employee's role.",
+                    choices: roleChoices,
+                },
+                {
+                    type: 'list',
+                    name: 'managerId',
+                    message: "Select the employee's manager:",
+                    choices: managerChoices,
+                    default: 'No Manager',
+                },
+            ])
+            .then((answers) => {
+                const {firstName, lastName, roleId, managerId} = answers;
+                const filePath = path.join(__dirname, 'addEmployee.sql');
+                const query = fs.readFileSync(filePath, 'utf-8');
+
+                connection.query(
+                    query,
+                    [firstName, lastName, roleId, managerId],
+                    (error, results) => {
+                        if (error) {
+                            console.error('Error executing the query:', error);
+                            return;
+                        }
+
+                        console.log('Employee added successfully!\n');
+
+                        // Return to the option menu
+                        showOptions();
+                    }
+                );
+            });
+        });
+    });
+}
+
+// Function to display the Role Options available when adding an Employee
+function getRoleChoices() {
+    const filePath = path.join(__dirname, 'getRoleChoices.sql');
+    const query = fs.readFileSync(filePath, 'utf-8');
+
+    return new Promise((resolve, reject) => {
+        connection.query(query, (error, results) => {
+            if (error) {
+                console.error('Error executing the query:', error);
+                reject(error);
+                return;
+            }
+
+            const choices = results.map((role) => ({
+                value: role.id,
+                name: role.title,
+            }));
+
+            resolve(choices);
+        });
+    });
+}
+
+// function to display the Manager Options available when adding an Employee
+function getManagerChoices() {
+    const filePath = path.join(__dirname, 'getManagerChoices.sql');
+    const query = fs.readFileSync(filePath, 'utf-8');
+
+    return new Promise((resolve, reject) => {
+        connection.query(query, (error, results) => {
+            if (error) {
+                console.error('Error executing the query:', error);
+                reject(error);
+                return;
+            }
+
+            const choices = [
+                { value: null, name: 'No Manager'},
+                ...results.map((manager) => ({
+                    value: manager.id,
+                    name: `${manager.first_name} ${manager.last_name}`,
+                })),
+            ];
+
+            resolve(choices);
+        });
+    });
+}
 
 // Start the application
 startApplication();
