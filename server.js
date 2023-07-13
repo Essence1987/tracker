@@ -207,7 +207,7 @@ function addRole() {
           {
             type: 'number',
             name: 'salary',
-            message: 'Enter the yearly salary for the role',
+            message: 'Enter the hourly pay rate for the role',
             validate: (input) => {
               if (input < 0 || isNaN(input)) {
                 return 'Please enter a valid salary.';
@@ -328,6 +328,70 @@ function addEmployee() {
                     }
                 );
             });
+        });
+    });
+}
+
+// function to update the Employee's Role
+function updateEmployeeRole() {
+    getEmployeeChoices().then((employeeChoices) => {
+      getRoleChoices().then((roleChoices) => {
+        inquirer
+          .prompt([
+            {
+              type: 'list',
+              name: 'employeeId',
+              message: 'Select an employee to update:',
+              choices: employeeChoices,
+            },
+            {
+              type: 'list',
+              name: 'roleId',
+              message: 'Select the new role for the employee:',
+              choices: roleChoices,
+            },
+          ])
+          .then((answers) => {
+            const { employeeId, roleId } = answers;
+            const filePath = path.join(__dirname, 'updateEmployee.sql');
+            const query = fs.readFileSync(filePath, 'utf-8');
+  
+            connection.query(query, [roleId, employeeId], (error, results) => {
+              if (error) {
+                console.error('Error updating employee role:', error);
+                return;
+              }
+  
+              console.log('Employee role updated successfully!\n');
+  
+              // Return to the options menu
+              showOptions();
+            });
+          });
+      });
+    });
+  }
+  
+// function to display the Employee options available when updating a employee's Role
+
+function getEmployeeChoices() {
+    return new Promise((resolve, reject) => {
+        const filePath = path.join(__dirname, 'getEmployeeChoices.sql');
+        const query = fs.readFileSync(filePath, 'utf-8');
+        
+        connection.query(query, (error, results) => {
+            if (error) {
+                console.error('Error fetching employee choices:', error);
+                reject(error);
+                return;
+            }
+
+            const choices = results.map((employee) => ({
+                value: employee.id,
+                name: employee.name,
+            }));
+
+            resolve(choices);
         });
     });
 }

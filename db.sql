@@ -1,13 +1,18 @@
 -- Creates the DATABASE FOR THE TABLES
-DROP DATABASE IF EXISTS library_db;
-CREATE DATABASE library_db;
-USE library_db;
+DROP DATABASE IF EXISTS grocery_store_db;
+CREATE DATABASE grocery_store_db;
+USE grocery_store_db;
 
 -- Creates the departments table
 CREATE TABLE departments (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100)
 );
+
+-- Inserts sample data into the departments table for testing purposes
+INSERT INTO departments (name) VALUES ('Produce');
+INSERT INTO departments (name) VALUES ('Dairy');
+INSERT INTO departments (name) VALUES ('Meat');
 
 -- Creates the roles table
 CREATE TABLE roles (
@@ -17,6 +22,13 @@ CREATE TABLE roles (
     department_id INT,
     FOREIGN KEY (department_id) REFERENCES departments(id)
 );
+
+-- Inserts sample data into the roles table
+INSERT INTO roles (title, salary, department_id) VALUES ('Cashier', 12.50, 1);
+INSERT INTO roles (title, salary, department_id) VALUES ('Stock Clerk', 10.00, 2);
+INSERT INTO roles (title, salary, department_id) VALUES ('Butcher', 15.00, 3);
+INSERT INTO roles (title, salary, department_id) VALUES ('Baker', 14.00, 3);
+INSERT INTO roles (title, salary, department_id) VALUES ('Produce Clerk', 11.50, 1);
 
 -- Creates the employees table
 CREATE TABLE employees (
@@ -29,14 +41,8 @@ CREATE TABLE employees (
     FOREIGN KEY (manager_id) REFERENCES employees(id)
 );
 
--- Inserts sample data into the departments table for testing purposes
-INSERT INTO departments (id, name) VALUES (1, 'Department A');
-INSERT INTO departments (id, name) VALUES (2, 'Department B');
-
--- Inserts sample data into the roles table
-INSERT INTO roles (id, title, salary, department_id) VALUES (1, 'Role A', 50000, 1);
-INSERT INTO roles (id, title, salary, department_id) VALUES (2, 'Role B', 60000, 2);
-
 -- Inserts sample data into the employees table for testing purposes
-INSERT INTO employees (id, first_name, last_name, role_id, manager_id) VALUES (1, 'John', 'Doe', 1, NULL);
-INSERT INTO employees (id, first_name, last_name, role_id, manager_id) VALUES (2, 'Jane', 'Doe', 2, 1);
+INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ('Fred', 'Johnson', 1, NULL);
+INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ('July', 'Maples', 2, 1);
+INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ('Michael', 'Smith', 3, 1);
+INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ('Emily', 'Brown', 4, 2);
