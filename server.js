@@ -83,7 +83,30 @@ function viewAllDepartments() {
       // Return to the options menu
       showOptions();
     });
-  }
+}
+
+function viewAllRoles() {
+    const query = 'SELECT r.id, r.title, d.name AS department, r.salary FROM roles r INNER JOIN departments d ON r.department_id = d.id';
+    connection.query(query, (error, results) => {
+        if (error) {
+            console.error('Error executing the query:', error);
+            return;
+        }
+
+        const tableData = results.map((role) => {
+            return{
+                'Role ID': role.id,
+                'Job Title': role.title,
+                'Department': role.department,
+                'Salary': role.salary,
+            };
+        });
+        console.table(tableData);
+
+        // Return to Options Menu
+        showOptions();
+    });
+}
 
 // Start the application
 startApplication();
