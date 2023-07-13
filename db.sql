@@ -5,13 +5,13 @@ USE library_db;
 
 -- Creates the departments table
 CREATE TABLE departments (
-    id INT PRIMARY KEY,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100)
 );
 
 -- Creates the roles table
 CREATE TABLE roles (
-    id INT PRIMARY KEY,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(100),
     salary DECIMAL(10, 2),
     department_id INT,
@@ -20,7 +20,7 @@ CREATE TABLE roles (
 
 -- Creates the employees table
 CREATE TABLE employees (
-    id INT PRIMARY KEY,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     first_name VARCHAR(100),
     last_name VARCHAR(100),
     role_id INT,

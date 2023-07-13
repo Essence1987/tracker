@@ -1,6 +1,7 @@
 const inquirer = require('inquirer');
 const connection = require('./connection'); // Import the MySql connection
-const { error, table } = require('console');
+const fs = require('fs');
+const path = require('path');
 
 
 // Function to start the application
@@ -66,7 +67,8 @@ function handleOption(option) {
 
 // function for viewing all departments
 function viewAllDepartments() {
-    const query = 'SELECT id, name FROM departments';
+    const filePath = path.join(__dirname, 'viewAllDepartments.sql');
+    const query = fs.readFileSync(filePath, 'utf-8');
     connection.query(query, (error, results) => {
       if (error) {
         console.error('Error executing the query:', error);
@@ -88,7 +90,8 @@ function viewAllDepartments() {
 }
 
 function viewAllRoles() {
-    const query = 'SELECT r.id, r.title, d.name AS department, r.salary FROM roles r INNER JOIN departments d ON r.department_id = d.id';
+    const filePath = path.join(__dirname, 'viewAllRoles.sql');
+    const query = fs.readFileSync(filePath, 'utf-8');
     connection.query(query, (error, results) => {
         if (error) {
             console.error('Error executing the query:', error);
@@ -110,50 +113,150 @@ function viewAllRoles() {
     });
 }
 
+// function  for handling viewAllEmployees
 function viewAllEmployees() {
-    const query = `
-    SELECT
-        e.id AS 'Employee ID',
-        e.first_name AS 'First Name',
-        e.last_name AS 'Last Name',
-        r.title AS 'AS 'Job Title',
-        d.name AS 'Department',
-        r.salary AS 'Salary',
-        CONCAT(m.first_name, ' ', m.last_name) AS 'Manager'
-        FROM
-          employees e
-        INNER JOIN
-          roles r ON e.role_id = r.id
-        INNER JOIN
-          departments d ON r.department_id = d.id
-        LEFT JOIN
-          employees m ON e.manager_id = m.id;
-        `;
-
+    const filePath = path.join(__dirname, 'viewAllEmployees.sql');
+    const query = fs.readFileSync(filePath, 'utf-8');
+  
     connection.query(query, (error, results) => {
-        if (error) {
-            console.error('Error executing the query:', error);
-            return;
-        }
+      if (error) {
+        console.error('Error executing the query:', error);
+        return;
+      }
+  
+      const tableData = results.map((employee) => {
+        return {
+          'Employee ID': employee['Employee ID'],
+          'First Name': employee['First Name'],
+          'Last Name': employee['Last Name'],
+          'Job Title': employee['Job Title'],
+          'Department': employee['Department'],
+          'Salary': employee['Salary'],
+          'Manager': employee['Manager'],
+        };
+      });
+  
+      console.table(tableData);
+  
+      // Return to the options menu
+      showOptions();
+    });
+  }
 
-        const tableData = results.map((employee) => {
-            return {
-                'Employee ID': employee['Employee ID'],
-                'First Name': employee['First Name'],
-                'Last Name': employee['Last Name'],
-                'Job Title': employee['Job Title'],
-                'Department': employee['Department'],
-                'Salary': employee['Salary'],
-                'Manager': employee['Manager'],
-            };
+// Function for adding a department
+
+function addDepartment() {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'departmentName',
+            message: 'Enter the name of the department:',
+            validate: (input) => {
+                if (input.trim() === '') {
+                    return 'Please enter a valid department name.';
+                }
+                return true;
+            },
+        },
+    ])
+    .then((answers) => {
+        const departmentName = answers.departmentName;
+
+        const filePath = path.join(__dirname, 'addDepartment.sql');
+        const query = fs.readFileSync(filePath, 'utf-8');
+        connection.query(query, [departmentName], (error, results) => {
+            if (error) {
+                console.error('Error executing the query', error);
+                return;
+            }
+            
+            console.log('Department added successfully.');
+
+            // Return to the options menu
+            showOptions();
         });
-
-        console.log(tableData);
-
-        // Returns to the option menu
-        showOptions();
     });
 }
+
+// function for addRole Option
+
+function addRole() {
+    getDepartmentChoices().then((choices) => {
+      inquirer
+        .prompt([
+          {
+            type: 'input',
+            name: 'title',
+            message: 'Enter the title of the role:',
+            validate: (input) => {
+              if (input.trim() === '') {
+                return 'Please enter a valid title.';
+              }
+              return true;
+            },
+          },
+          {
+            type: 'number',
+            name: 'salary',
+            message: 'Enter the yearly salary for the role',
+            validate: (input) => {
+              if (input < 0 || isNaN(input)) {
+                return 'Please enter a valid salary.';
+              }
+              return true;
+            },
+          },
+          {
+            type: 'list',
+            name: 'departmentId',
+            message: 'Select the department for the role:',
+            choices: choices,
+          },
+        ])
+        .then((answers) => {
+          const { title, salary, departmentId } = answers;
+          const filePath = path.join(__dirname, 'addRole.sql');
+          const query = fs.readFileSync(filePath, 'utf-8');
+  
+          connection.query(query, [title, salary, departmentId], (error, results) => {
+            if (error) {
+              console.error('Error executing the query:', error);
+              return;
+            }
+  
+            console.log('Role added successfully!\n');
+  
+            // Return to the options menu
+            showOptions();
+          });
+        });
+    });
+  }
+  
+
+// function to display the Department Options available when adding a Role
+
+function getDepartmentChoices() {
+    const filePath = path.join(__dirname, 'getDepartmentChoices.sql');
+    const query = fs.readFileSync(filePath, 'utf-8');
+  
+    return new Promise((resolve, reject) => {
+      connection.query(query, (error, results) => {
+        if (error) {
+          console.error('Error executing the query:', error);
+          reject(error);
+          return;
+        }
+  
+        const choices = results.map((department) => ({
+          value: department.id,
+          name: department.name,
+        }));
+  
+        resolve(choices);
+      });
+    });
+  }  
 
 // Start the application
 startApplication();
