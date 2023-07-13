@@ -26,14 +26,22 @@ function showOptions() {
         'Add a department',
         'Add a role',
         'Add an employee',
-        'Update an employee role'
+        'Update an employee role',
+        'Exit',
       ],
     },
   ])
-    .then((answers) => {
-      // Calls function to handle the selected option
-      handleOption(answers.option);
-    });
+  .then((answers) => {
+    const option = answers.option;
+    if (option === 'Exit') {
+      // Exit the application if "Exit" option is chosen
+      console.log('Exiting the application...');
+      connection.end(); // Close the MySQL connection
+      return;
+    }
+    // Calls function to handle the selected option
+    handleOption(option);
+  });
 }
 
 // function for handling the selected option
