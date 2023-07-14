@@ -1,7 +1,7 @@
 -- Creates the DATABASE FOR THE TABLES
-DROP DATABASE IF EXISTS grocery_store_db;
-CREATE DATABASE grocery_store_db;
-USE grocery_store_db;
+DROP DATABASE IF EXISTS grocery_db;
+CREATE DATABASE grocery_db;
+USE grocery_db;
 
 -- Creates the departments table
 CREATE TABLE departments (
@@ -10,9 +10,11 @@ CREATE TABLE departments (
 );
 
 -- Inserts sample data into the departments table for testing purposes
-INSERT INTO departments (name) VALUES ('Produce');
-INSERT INTO departments (name) VALUES ('Dairy');
+INSERT INTO departments (name) VALUES ('Not Assigned');
+INSERT INTO departments (name) VALUES ('Front End');
+INSERT INTO departments (name) VALUES ('Grocery');
 INSERT INTO departments (name) VALUES ('Meat');
+INSERT INTO departments (name) VALUES ('Produce');
 
 -- Creates the roles table
 CREATE TABLE roles (
@@ -24,11 +26,11 @@ CREATE TABLE roles (
 );
 
 -- Inserts sample data into the roles table
-INSERT INTO roles (title, salary, department_id) VALUES ('Cashier', 12.50, 1);
-INSERT INTO roles (title, salary, department_id) VALUES ('Stock Clerk', 10.00, 2);
-INSERT INTO roles (title, salary, department_id) VALUES ('Butcher', 15.00, 3);
-INSERT INTO roles (title, salary, department_id) VALUES ('Baker', 14.00, 3);
-INSERT INTO roles (title, salary, department_id) VALUES ('Produce Clerk', 11.50, 1);
+INSERT INTO roles (title, salary, department_id) VALUES ('Cashier', 35000, 1);
+INSERT INTO roles (title, salary, department_id) VALUES ('Stock Clerk', 37000, 2);
+INSERT INTO roles (title, salary, department_id) VALUES ('Butcher', 38000, 3);
+INSERT INTO roles (title, salary, department_id) VALUES ('Baker', 37500, 3);
+INSERT INTO roles (title, salary, department_id) VALUES ('Produce Clerk', 38000, 4);
 
 -- Creates the employees table
 CREATE TABLE employees (

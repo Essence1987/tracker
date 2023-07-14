@@ -3,12 +3,25 @@ const connection = require('./connection'); // Import the MySql connection
 const fs = require('fs');
 const path = require('path');
 const { error } = require('console');
+const figlet = require('figlet'); // Import the figlet library
 
 
 // Function to start the application
 function startApplication() {
   console.log('Welcome to the Employee Tracking Database!');
-  showOptions();
+  displayLogo();
+}
+
+// Function to display the ASCII art logo
+function displayLogo() {
+  figlet('Employee Tracker', (error, data) => {
+    if (error) {
+      console.error('Error generating ASCII art:', error);
+      return;
+    }
+    console.log(data);
+    showOptions();
+  });
 }
 
 // Present options using inquirer
@@ -23,11 +36,13 @@ function showOptions() {
         'View all departments',
         'View all roles',
         'View all employees',
+        'View employees by manager',
         'Add a department',
         'Add a role',
         'Add an employee',
         'Update an employee role',
         'Delete an Employee',
+        'Delete a Department',
         'Exit',
       ],
     },
@@ -57,6 +72,9 @@ function handleOption(option) {
     case 'View all employees':
       viewAllEmployees();
       break;
+    case 'View employees by manager':
+      viewEmployeesByManager();
+      break;
     case 'Add a department':
       addDepartment();
       break;
@@ -71,6 +89,9 @@ function handleOption(option) {
       break;
     case 'Delete an Employee':
       deleteEmployee();
+      break;
+    case 'Delete a Department':
+      deleteDepartment();
       break;
     default:
       console.log('Invalid option. Please choose a valid option.\n');
@@ -102,6 +123,7 @@ function viewAllDepartments() {
     });
 }
 
+// function to see all available roles
 function viewAllRoles() {
     const filePath = path.join(__dirname, 'db', 'viewAllRoles.sql');
     const query = fs.readFileSync(filePath, 'utf-8');
@@ -125,6 +147,51 @@ function viewAllRoles() {
         showOptions();
     });
 }
+
+// function for views employees by Manager
+function viewEmployeesByManager() {
+  getManagerChoices().then((managerChoices) => {
+    inquirer
+      .prompt([
+        {
+          type: 'list',
+          name: 'managerId',
+          message: 'Select a manager:',
+          choices: managerChoices,
+        },
+      ])
+      .then((answers) => {
+        const { managerId } = answers;
+        const filePath = path.join(__dirname, 'db', 'viewEmployeesByManager.sql');
+        const query = fs.readFileSync(filePath, 'utf-8');
+
+        connection.query(query, [managerId], (error, results) => {
+          if (error) {
+            console.error('Error executing the query:', error);
+            return;
+          }
+
+          const tableData = results.map((employee) => {
+            return {
+              'Employee ID': employee['Employee ID'],
+              'First Name': employee['First Name'],
+              'Last Name': employee['Last Name'],
+              'Job Title': employee['Job Title'],
+              'Department': employee['Department'],
+              'Salary': employee['Salary'],
+              'Manager': employee['Manager'],
+            };
+          });
+
+          console.table(tableData);
+
+          // Return to the options menu
+          showOptions();
+        });
+      });
+  });
+}
+
 
 // function  for handling viewAllEmployees
 function viewAllEmployees() {
@@ -338,8 +405,9 @@ function addEmployee() {
 
 // function to update the Employee's Role
 function updateEmployeeRole() {
-    getEmployeeChoices().then((employeeChoices) => {
-      getRoleChoices().then((roleChoices) => {
+  getEmployeeChoices().then((employeeChoices) => {
+    getRoleChoices().then((roleChoices) => {
+      getManagerChoices().then((managerChoices) => {
         inquirer
           .prompt([
             {
@@ -354,27 +422,39 @@ function updateEmployeeRole() {
               message: 'Select the new role for the employee:',
               choices: roleChoices,
             },
+            {
+              type: 'list',
+              name: 'managerId',
+              message: "Select the employee's new manager:",
+              choices: managerChoices,
+              default: 'No Manager',
+            },
           ])
           .then((answers) => {
-            const { employeeId, roleId } = answers;
+            const { employeeId, roleId, managerId } = answers;
             const filePath = path.join(__dirname, 'db', 'updateEmployee.sql');
             const query = fs.readFileSync(filePath, 'utf-8');
-  
-            connection.query(query, [roleId, employeeId], (error, results) => {
-              if (error) {
-                console.error('Error updating employee role:', error);
-                return;
+
+            connection.query(
+              query,
+              [roleId, managerId, employeeId],
+              (error, results) => {
+                if (error) {
+                  console.error('Error updating employee role:', error);
+                  return;
+                }
+
+                console.log('Employee role and manager updated successfully!\n');
+
+                // Return to the options menu
+                showOptions();
               }
-  
-              console.log('Employee role updated successfully!\n');
-  
-              // Return to the options menu
-              showOptions();
-            });
+            );
           });
       });
     });
-  }
+  });
+}
 
 //   Function to delete an Employee from the Database
   function deleteEmployee() {
@@ -482,6 +562,108 @@ function getManagerChoices() {
         });
     });
 }
+
+function deleteDepartment() {
+  getDepartmentChoices().then((departmentChoices) => {
+    inquirer
+      .prompt([
+        {
+          type: 'list',
+          name: 'departmentId',
+          message: 'Select a department to delete:',
+          choices: departmentChoices,
+        },
+      ])
+      .then((answers) => {
+        const { departmentId } = answers;
+
+        const confirmMessage = `Are you sure you want to delete the department with ID ${departmentId}? This will move all associated employees and roles to a department and role called "Not assigned".`;
+
+        inquirer
+          .prompt([
+            {
+              type: 'confirm',
+              name: 'confirmDelete',
+              message: confirmMessage,
+            },
+          ])
+          .then((confirmation) => {
+            const { confirmDelete } = confirmation;
+
+            if (confirmDelete) {
+              const notAssignedDepartmentQuery = 'SELECT id FROM departments WHERE name = "Not assigned"';
+              const insertRolesQuery = 'INSERT INTO roles (title, salary, department_id) SELECT title, salary, ? FROM roles WHERE department_id = ?';
+              const updateEmployeesQuery = 'UPDATE employees SET role_id = 1 WHERE role_id = ?';
+
+
+              connection.beginTransaction((err) => {
+                if (err) {
+                  console.error('Error starting transaction:', err);
+                  return;
+                }
+
+                connection.query(notAssignedDepartmentQuery, (error, results) => {
+                  if (error) {
+                    console.error('Error retrieving "Not assigned" department ID:', error);
+                    connection.rollback(() => {
+                      console.error('Transaction rolled back due to error.');
+                      showOptions();
+                    });
+                    return;
+                  }
+
+                  const notAssignedDepartmentId = results[0].id;
+
+                  connection.query(insertRolesQuery, [notAssignedDepartmentId, departmentId], (error, results) => {
+                    if (error) {
+                      console.error('Error inserting roles into "Not assigned" department:', error);
+                      connection.rollback(() => {
+                        console.error('Transaction rolled back due to error.');
+                        showOptions();
+                      });
+                      return;
+                    }
+
+                    connection.query(updateEmployeesQuery, [notAssignedDepartmentId, departmentId], (error, results) => {
+                      if (error) {
+                        console.error('Error updating employees department to "Not assigned":', error);
+                        connection.rollback(() => {
+                          console.error('Transaction rolled back due to error.');
+                          showOptions();
+                        });
+                        return;
+                      }
+
+                      connection.commit((err) => {
+                        if (err) {
+                          console.error('Error committing transaction:', err);
+                          connection.rollback(() => {
+                            console.error('Transaction rolled back due to error.');
+                            showOptions();
+                          });
+                          return;
+                        }
+
+                        console.log('Department deleted successfully! Associated employees and roles have been moved to "Not assigned".\n');
+
+                        // Return to the options menu
+                        showOptions();
+                      });
+                    });
+                  });
+                });
+              });
+            } else {
+              console.log('Deletion of department canceled.\n');
+
+              // Return to the options menu
+              showOptions();
+            }
+          });
+      });
+  });
+}
+
 
 // Start the application
 startApplication();

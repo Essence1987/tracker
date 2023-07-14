@@ -1,1 +1,1 @@
-UPDATE employees SET role_id = ? WHERE id = ?;
+UPDATE employees SET role_id = ?, manager_id = ? WHERE id = ?;
