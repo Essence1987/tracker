@@ -36,9 +36,9 @@ https://github.com/Essence1987/tracker/assets/129245370/92185d03-1bdb-4f04-9766-
 
 # **Technology**
 
-Node.js
-MySQL
-Inquirer.js
+* Node.js
+* MySQL
+* Inquirer.js
 
 # **Database Schema**
 
