@@ -26,9 +26,13 @@ This project provides a command-line interface for managing an employee tracking
 
 # **Usage**
 
-Once the application is running, you will be presented with a menu of options. Use the arrow keys to navigate the menu and press Enter to select an option. Follow the prompts to perform the desired actions, such as adding a department, updating an employee role, or deleting an employee. The application will communicate with the MySQL database to execute the corresponding queries.
+Once the application runs, you will be presented with a menu of options. Use the arrow keys to navigate the menu and press Enter to select an option. Follow the prompts to perform the desired actions, such as adding a department, updating an employee role, or deleting an employee. The application will communicate with the MySQL database to execute the corresponding queries.
 
-For a demonstration please watch the following video:
+For a demonstration, please watch the following video:
+
+https://github.com/Essence1987/tracker/assets/129245370/92185d03-1bdb-4f04-9766-ee05bdb63d1d
+
+
 
 # **Technology**
 
