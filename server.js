@@ -80,7 +80,7 @@ function handleOption(option) {
 
 // function for viewing all departments
 function viewAllDepartments() {
-    const filePath = path.join(__dirname, 'viewAllDepartments.sql');
+    const filePath = path.join(__dirname, 'db', 'viewAllDepartments.sql');
     const query = fs.readFileSync(filePath, 'utf-8');
     connection.query(query, (error, results) => {
       if (error) {
@@ -103,7 +103,7 @@ function viewAllDepartments() {
 }
 
 function viewAllRoles() {
-    const filePath = path.join(__dirname, 'viewAllRoles.sql');
+    const filePath = path.join(__dirname, 'db', 'viewAllRoles.sql');
     const query = fs.readFileSync(filePath, 'utf-8');
     connection.query(query, (error, results) => {
         if (error) {
@@ -128,7 +128,7 @@ function viewAllRoles() {
 
 // function  for handling viewAllEmployees
 function viewAllEmployees() {
-    const filePath = path.join(__dirname, 'viewAllEmployees.sql');
+    const filePath = path.join(__dirname, 'db', 'viewAllEmployees.sql');
     const query = fs.readFileSync(filePath, 'utf-8');
   
     connection.query(query, (error, results) => {
@@ -175,7 +175,7 @@ function addDepartment() {
     .then((answers) => {
         const departmentName = answers.departmentName;
 
-        const filePath = path.join(__dirname, 'addDepartment.sql');
+        const filePath = path.join(__dirname, 'db', 'addDepartment.sql');
         const query = fs.readFileSync(filePath, 'utf-8');
         connection.query(query, [departmentName], (error, results) => {
             if (error) {
@@ -228,7 +228,7 @@ function addRole() {
         ])
         .then((answers) => {
           const { title, salary, departmentId } = answers;
-          const filePath = path.join(__dirname, 'addRole.sql');
+          const filePath = path.join(__dirname, 'db', 'addRole.sql');
           const query = fs.readFileSync(filePath, 'utf-8');
   
           connection.query(query, [title, salary, departmentId], (error, results) => {
@@ -250,7 +250,7 @@ function addRole() {
 // function to display the Department Options available when adding a Role
 
 function getDepartmentChoices() {
-    const filePath = path.join(__dirname, 'getDepartmentChoices.sql');
+    const filePath = path.join(__dirname, 'db', 'getDepartmentChoices.sql');
     const query = fs.readFileSync(filePath, 'utf-8');
   
     return new Promise((resolve, reject) => {
@@ -313,7 +313,7 @@ function addEmployee() {
             ])
             .then((answers) => {
                 const {firstName, lastName, roleId, managerId} = answers;
-                const filePath = path.join(__dirname, 'addEmployee.sql');
+                const filePath = path.join(__dirname, 'db', 'addEmployee.sql');
                 const query = fs.readFileSync(filePath, 'utf-8');
 
                 connection.query(
@@ -357,7 +357,7 @@ function updateEmployeeRole() {
           ])
           .then((answers) => {
             const { employeeId, roleId } = answers;
-            const filePath = path.join(__dirname, 'updateEmployee.sql');
+            const filePath = path.join(__dirname, 'db', 'updateEmployee.sql');
             const query = fs.readFileSync(filePath, 'utf-8');
   
             connection.query(query, [roleId, employeeId], (error, results) => {
@@ -391,7 +391,7 @@ function updateEmployeeRole() {
         .then((answers) => {
           const { employeeId } = answers;
   
-          const filePath = path.join(__dirname, 'deleteEmployee.sql');
+          const filePath = path.join(__dirname, 'db', 'deleteEmployee.sql');
           const query = fs.readFileSync(filePath, 'utf-8');
   
           connection.query(query, [employeeId], (error, results) => {
@@ -414,7 +414,7 @@ function updateEmployeeRole() {
 
 function getEmployeeChoices() {
     return new Promise((resolve, reject) => {
-        const filePath = path.join(__dirname, 'getEmployeeChoices.sql');
+        const filePath = path.join(__dirname, 'db', 'getEmployeeChoices.sql');
         const query = fs.readFileSync(filePath, 'utf-8');
         
         connection.query(query, (error, results) => {
@@ -436,7 +436,7 @@ function getEmployeeChoices() {
 
 // Function to display the Role Options available when adding an Employee
 function getRoleChoices() {
-    const filePath = path.join(__dirname, 'getRoleChoices.sql');
+    const filePath = path.join(__dirname, 'db', 'getRoleChoices.sql');
     const query = fs.readFileSync(filePath, 'utf-8');
 
     return new Promise((resolve, reject) => {
@@ -459,7 +459,7 @@ function getRoleChoices() {
 
 // function to display the Manager Options available when adding an Employee
 function getManagerChoices() {
-    const filePath = path.join(__dirname, 'getManagerChoices.sql');
+    const filePath = path.join(__dirname, 'db', 'getManagerChoices.sql');
     const query = fs.readFileSync(filePath, 'utf-8');
 
     return new Promise((resolve, reject) => {
