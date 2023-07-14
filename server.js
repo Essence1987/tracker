@@ -27,6 +27,7 @@ function showOptions() {
         'Add a role',
         'Add an employee',
         'Update an employee role',
+        'Delete an Employee',
         'Exit',
       ],
     },
@@ -67,6 +68,9 @@ function handleOption(option) {
       break;
     case 'Update an employee role':
       updateEmployeeRole();
+      break;
+    case 'Delete an Employee':
+      deleteEmployee();
       break;
     default:
       console.log('Invalid option. Please choose a valid option.\n');
@@ -371,7 +375,41 @@ function updateEmployeeRole() {
       });
     });
   }
+
+//   Function to delete an Employee from the Database
+  function deleteEmployee() {
+    getEmployeeChoices().then((employeeChoices) => {
+      inquirer
+        .prompt([
+          {
+            type: 'list',
+            name: 'employeeId',
+            message: 'Select an employee to delete:',
+            choices: employeeChoices,
+          },
+        ])
+        .then((answers) => {
+          const { employeeId } = answers;
   
+          const filePath = path.join(__dirname, 'deleteEmployee.sql');
+          const query = fs.readFileSync(filePath, 'utf-8');
+  
+          connection.query(query, [employeeId], (error, results) => {
+            if (error) {
+              console.error('Error deleting employee:', error);
+              return;
+            }
+  
+            console.log('Employee deleted successfully!\n');
+  
+            // Return to the options menu
+            showOptions();
+          });
+        });
+    });
+  }
+   
+
 // function to display the Employee options available when updating a employee's Role
 
 function getEmployeeChoices() {
