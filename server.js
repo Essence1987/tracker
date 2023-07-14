@@ -563,6 +563,8 @@ function getManagerChoices() {
     });
 }
 
+//Function to delete Department
+
 function deleteDepartment() {
   getDepartmentChoices().then((departmentChoices) => {
     inquirer
@@ -591,17 +593,20 @@ function deleteDepartment() {
             const { confirmDelete } = confirmation;
 
             if (confirmDelete) {
+              // SQL queries for deleting the department
               const notAssignedDepartmentQuery = 'SELECT id FROM departments WHERE name = "Not assigned"';
-              const insertRolesQuery = 'INSERT INTO roles (title, salary, department_id) SELECT title, salary, ? FROM roles WHERE department_id = ?';
+              const deleteDepartmentQuery = 'DELETE FROM departments WHERE id = ?';
+              const updateRolesQuery = 'UPDATE roles SET department_id = ? WHERE department_id = ?';
               const updateEmployeesQuery = 'UPDATE employees SET role_id = 1 WHERE role_id = ?';
 
-
+              // Transaction for executing multiple queries
               connection.beginTransaction((err) => {
                 if (err) {
                   console.error('Error starting transaction:', err);
                   return;
                 }
 
+                // Retrieve the ID of the "Not assigned" department
                 connection.query(notAssignedDepartmentQuery, (error, results) => {
                   if (error) {
                     console.error('Error retrieving "Not assigned" department ID:', error);
@@ -614,9 +619,10 @@ function deleteDepartment() {
 
                   const notAssignedDepartmentId = results[0].id;
 
-                  connection.query(insertRolesQuery, [notAssignedDepartmentId, departmentId], (error, results) => {
+                  // Update roles associated with the department to "Not assigned" department
+                  connection.query(updateRolesQuery, [notAssignedDepartmentId, departmentId], (error, results) => {
                     if (error) {
-                      console.error('Error inserting roles into "Not assigned" department:', error);
+                      console.error('Error updating roles department to "Not assigned":', error);
                       connection.rollback(() => {
                         console.error('Transaction rolled back due to error.');
                         showOptions();
@@ -624,6 +630,7 @@ function deleteDepartment() {
                       return;
                     }
 
+                    // Update employees' department to "Not assigned"
                     connection.query(updateEmployeesQuery, [notAssignedDepartmentId, departmentId], (error, results) => {
                       if (error) {
                         console.error('Error updating employees department to "Not assigned":', error);
@@ -634,9 +641,10 @@ function deleteDepartment() {
                         return;
                       }
 
-                      connection.commit((err) => {
-                        if (err) {
-                          console.error('Error committing transaction:', err);
+                      // Delete the department
+                      connection.query(deleteDepartmentQuery, [departmentId], (error, results) => {
+                        if (error) {
+                          console.error('Error deleting department:', error);
                           connection.rollback(() => {
                             console.error('Transaction rolled back due to error.');
                             showOptions();
@@ -644,10 +652,22 @@ function deleteDepartment() {
                           return;
                         }
 
-                        console.log('Department deleted successfully! Associated employees and roles have been moved to "Not assigned".\n');
+                        // Commit the transaction
+                        connection.commit((err) => {
+                          if (err) {
+                            console.error('Error committing transaction:', err);
+                            connection.rollback(() => {
+                              console.error('Transaction rolled back due to error.');
+                              showOptions();
+                            });
+                            return;
+                          }
 
-                        // Return to the options menu
-                        showOptions();
+                          console.log('Department deleted successfully! Associated employees and roles have been moved to "Not assigned".\n');
+
+                          // Return to the options menu
+                          showOptions();
+                        });
                       });
                     });
                   });
@@ -663,6 +683,8 @@ function deleteDepartment() {
       });
   });
 }
+
+
 
 
 // Start the application

@@ -26,11 +26,11 @@ CREATE TABLE roles (
 );
 
 -- Inserts sample data into the roles table
-INSERT INTO roles (title, salary, department_id) VALUES ('Cashier', 35000, 1);
-INSERT INTO roles (title, salary, department_id) VALUES ('Stock Clerk', 37000, 2);
-INSERT INTO roles (title, salary, department_id) VALUES ('Butcher', 38000, 3);
-INSERT INTO roles (title, salary, department_id) VALUES ('Baker', 37500, 3);
-INSERT INTO roles (title, salary, department_id) VALUES ('Produce Clerk', 38000, 4);
+INSERT INTO roles (title, salary, department_id) VALUES ('Cashier', 35000, 2);
+INSERT INTO roles (title, salary, department_id) VALUES ('Stock Clerk', 37000, 3);
+INSERT INTO roles (title, salary, department_id) VALUES ('Butcher', 38000, 4);
+INSERT INTO roles (title, salary, department_id) VALUES ('Baker', 37500, 4);
+INSERT INTO roles (title, salary, department_id) VALUES ('Produce Clerk', 38000, 5);
 
 -- Creates the employees table
 CREATE TABLE employees (
